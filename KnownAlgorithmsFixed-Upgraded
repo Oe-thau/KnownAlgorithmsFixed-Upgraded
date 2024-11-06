@@ -1,0 +1,335 @@
+p=5
+K = Qp(p, prec = 10000, type = 'capped-rel', print_mode = 'series')
+
+def Browkin_s(x):
+		v=x.valuation()
+		b=0
+		t=x[v]
+		if x[v]>(p-1)/2:
+				t=-(p-x[v])
+				carry=1
+		else:
+				carry=0
+		b=b+(t*p^v)
+		for i in range (v+1,1):
+			t=x[i]+carry
+			if t>(p-1)/2:
+				t=-(p-t)
+				carry=1
+			else:
+				carry=0
+			b=b+(t*p^i)
+		return b
+
+def detect_period_BrowkinI_Sqrt(D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x1=x
+			b1=Browkin_s(x)
+			exp1=[Rational(b1)]
+			P1=b1
+			Q1=D-b1^2
+			L1=[[0,1],[P1,Q1]]
+			i=0
+			flag1=0
+			while flag1==0 and i<lim:
+				x1=1/(x1-b1)
+				i=i+1
+				b1=Browkin_s(x1)
+				exp1.append(Rational(b1))
+				P1=b1*Q1-P1
+				Q1=(D-P1^2)/Q1
+				L1.append([P1,Q1])
+				l=len(L1)
+				j=0
+				while flag1==0 and j<l-1:
+					if L1[j]==[P1,Q1]:
+						flag1=1
+						length_period1=l-j-1
+						length_preperiod1=j
+					j=j+1
+			if flag1==0:
+				length_preperiod1=0
+				length_period1=0
+			return [exp1,length_preperiod1,length_period1]
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
+
+def Browkin_t(x):
+		v=x.valuation()
+		b=0
+		t=x[v]
+		if x[v]>(p-1)/2:
+				t=-(p-x[v])
+				carry=1
+		else:
+				carry=0
+		b=b+(t*p^v)
+		
+		for i in range (v+1,0):
+			t=x[i]+carry
+			if t>(p-1)/2:
+				t=-(p-t)
+				carry=1
+			else:
+				carry=0
+			b=b+(t*p^i)	
+		return b
+
+def check_sign(x):	
+		v=x.valuation()
+		t=x[v]
+		if x[v]>(p-1)/2:
+				t=-(p-x[v])
+				carry=1
+		else:
+				carry=0
+		
+		for i in range (v+1,1):
+			t=x[i]+carry
+			if t>(p-1)/2:
+				t=-(p-t)
+				carry=1
+			else:
+				carry=0
+		if t==0:
+			a0=1
+		else:
+			a0=0
+		return a0
+
+def detect_period_BrowkinII_Sqrt(D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x2=x
+			b2=Browkin_s(x)
+			exp2=[Rational(b2)]
+			
+			P2=b2
+			Q2=D-b2^2
+			L2=[[0,1],[P2,Q2]]
+			
+			i=0
+			flag2=0
+			
+			while flag2==0 and i<lim:
+				x2=1/(x2-b2)
+				
+				i=i+1
+				
+				if i%2==0:
+					b2=Browkin_s(x2)
+				else:
+					q2=Browkin_t(x2)
+					b2=q2-check_sign(K(x2))*sign(q2)
+					
+				exp2.append(Rational(b2))
+				
+				P2=b2*Q2-P2
+				Q2=(D-P2^2)/Q2
+				L2.append([P2,Q2])
+				
+				l=len(L2)
+				j=(i+1)%2
+				
+				while flag2==0 and j<l-1:
+					if L2[j]==[P2,Q2]:
+						flag2=1
+						length_period2=l-j-1
+						length_preperiod2=j
+					
+					j=j+2
+			
+			if flag2==0:
+				length_preperiod2=0
+				length_period2=0			
+				
+			return [exp2,length_preperiod2,length_period2]
+				
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
+
+def detect_period_New_Sqrt(D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x3=x
+			b3=Browkin_s(x3)
+			exp3=[Rational(b3)]
+			
+			P3=b3
+			Q3=D-b3^2
+			L3=[[0,1],[P3,Q3]]
+			
+			i=0
+			flag3=0
+			
+			while flag3==0 and i<lim:
+				x3=1/(x3-b3)
+				
+				i=i+1
+				
+				if i%2==0:
+					b3=Browkin_s(x3)
+				else:
+					b3=Browkin_t(x3)
+					
+				exp3.append(Rational(b3))
+				
+				P3=b3*Q3-P3
+				Q3=(D-P3^2)/Q3
+				L3.append([P3,Q3])
+				
+				l=len(L3)
+				j=(i+1)%2
+				
+				while flag3==0 and j<l-1:
+					if L3[j]==[P3,Q3]:
+						flag3=1
+						length_period3=l-j-1
+						length_preperiod3=j
+					
+					j=j+2
+			
+			if flag3==0:
+				length_preperiod3=0
+				length_period3=0		
+				
+			return [exp3,length_preperiod3,length_period3]
+				
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
+
+def detect_period_BrowkinI(P,Q,D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x1=(P+x)/Q
+			b1=Browkin_s(x1)
+			exp1=[Rational(b1)]
+			P1=b1*Q-P
+			Q1=(D-P1^2)/Q
+			L1=[[P,Q],[P1,Q1]]
+			i=0
+			flag1=0
+			while flag1==0 and i<lim:
+				x1=1/(x1-b1)
+				i=i+1
+				b1=Browkin_s(x1)
+				exp1.append(Rational(b1))
+				P1=b1*Q1-P1
+				Q1=(D-P1^2)/Q1
+				L1.append([P1,Q1])
+				l=len(L1)
+				j=0
+				while flag1==0 and j<l-1:
+					if L1[j]==[P1,Q1]:
+						flag1=1
+						length_period1=l-j-1
+						length_preperiod1=j
+					j=j+1
+			if flag1==0:
+				length_preperiod1=0
+				length_period1=0
+			return [exp1,length_preperiod1,length_period1]
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
+	
+def detect_period_BrowkinII(P,Q,D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x2=(P+x)/Q
+			b2=Browkin_s(x2)
+			exp2=[Rational(b2)]
+			
+			P2=b2*Q-P
+			Q2=(D-P2^2)/Q
+			L2=[[P,Q],[P2,Q2]]
+			
+			i=0
+			flag2=0
+			
+			while flag2==0 and i<lim:
+				x2=1/(x2-b2)
+				
+				i=i+1
+				
+				if i%2==0:
+					b2=Browkin_s(x2)
+				else:
+					q2=Browkin_t(x2)
+					b2=q2-check_sign(K(x2))*sign(q2)
+					
+				exp2.append(Rational(b2))
+				
+				P2=b2*Q2-P2
+				Q2=(D-P2^2)/Q2
+				L2.append([P2,Q2])
+				
+				l=len(L2)
+				j=(i+1)%2
+				
+				while flag2==0 and j<l-1:
+					if L2[j]==[P2,Q2]:
+						flag2=1
+						length_period2=l-j-1
+						length_preperiod2=j
+					
+					j=j+2
+			
+			if flag2==0:
+				length_preperiod2=0
+				length_period2=0			
+				
+			return [exp2,length_preperiod2,length_period2]
+				
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
+
+def detect_period_New(P,Q,D,lim):
+		if K(D).is_square()==1:
+			x=K(D).square_root()
+			x3=(P+x)/Q
+			b3=Browkin_s(x3)
+			exp3=[Rational(b3)]
+			
+			P3=b3*Q-P
+			Q3=(D-P3^2)/Q
+			L3=[[P,Q],[P3,Q3]]
+			
+			i=0
+			flag3=0
+			
+			while flag3==0 and i<lim:
+				x3=1/(x3-b3)
+				
+				i=i+1
+				
+				if i%2==0:
+					b3=Browkin_s(x3)
+				else:
+					b3=Browkin_t(x3)
+					
+				exp3.append(Rational(b3))
+				
+				P3=b3*Q3-P3
+				Q3=(D-P3^2)/Q3
+				L3.append([P3,Q3])
+				
+				l=len(L3)
+				j=(i+1)%2
+				
+				while flag3==0 and j<l-1:
+					if L3[j]==[P3,Q3]:
+						flag3=1
+						length_period3=l-j-1
+						length_preperiod3=j
+					
+					j=j+2
+			
+			if flag3==0:
+				length_preperiod3=0
+				length_period3=0		
+				
+			return [exp3,length_preperiod3,length_period3]
+				
+		else:
+			return print(x, 'is not a quadratic residue modulo p')
